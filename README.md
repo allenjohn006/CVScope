@@ -1,4 +1,4 @@
-# AI Resume Evaluation System
+# CVScope (AI Resume Evaluation System)
 
  An intelligent system that evaluates resume-job description compatibility using advanced AI embeddings, semantic similarity analysis, and Retrieval-Augmented Generation (RAG).
 
@@ -11,7 +11,7 @@
 
 ## 📋 Overview
 
-The AI Resume Evaluation System leverages state-of-the-art Natural Language Processing to analyze resume-job description compatibility. By combining semantic embeddings, similarity scoring, and RAG-based AI reasoning, it provides actionable insights to help candidates optimize their applications.
+The CVScope leverages state-of-the-art Natural Language Processing to analyze resume-job description compatibility. By combining semantic embeddings, similarity scoring, and RAG-based AI reasoning, it provides actionable insights to help candidates optimize their applications.
 
 ### ✨ Key Features
 
