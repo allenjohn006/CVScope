@@ -79,6 +79,7 @@ export default function App() {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [isChatting, setIsChatting] = useState(false);
+  const [error, setError] = useState('');
 
   const compileTimer = useRef(null);
   const chatBottomRef = useRef(null);
@@ -104,12 +105,31 @@ export default function App() {
     setIsCompiling(true);
     try {
       const resp = await axios.post(`${API}/compile-latex`, { latex_content: code }, { responseType: 'blob' });
+      // Check if the response is actually a PDF or an error JSON
+      const contentType = resp.headers?.['content-type'] || '';
+      if (contentType.includes('application/json')) {
+        const text = await resp.data.text();
+        const json = JSON.parse(text);
+        const msg = json.error || 'Compilation failed';
+        if (msg.includes('pdflatex')) {
+          setError('⚠ pdflatex not found. Install MiKTeX or TeX Live to enable PDF compilation. LaTeX code is ready in the editor.');
+        } else {
+          setError(`LaTeX error: ${msg}`);
+        }
+        return;
+      }
       const blob = new Blob([resp.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       setPdfUrl(url);
+      setError(''); // clear any previous error
     } catch (err) {
-      console.warn('Compile error (non-fatal):', err?.response?.data || err.message);
+      const msg = err?.response?.data?.error || err?.message || 'Unknown error';
+      if (msg.includes('pdflatex') || msg.includes('not found')) {
+        setError('⚠ pdflatex not found. Install MiKTeX or TeX Live to enable PDF compilation. LaTeX code is ready in the editor.');
+      } else {
+        console.warn('Compile error (non-fatal):', msg);
+      }
     } finally {
       setIsCompiling(false);
     }
@@ -126,11 +146,12 @@ export default function App() {
   /* ---- Main pipeline ---- */
   const handleRun = async () => {
     try {
+      setError('');
       // Validate inputs
       const hasResume = resumeMode === 'file' ? !!resumeFile : !!resumeText.trim();
       const hasJD     = jdMode     === 'file' ? !!jdFile     : !!jdText.trim();
       if (!hasResume || !hasJD) {
-        alert('Please provide both your resume and the job description.');
+        setError('Please provide both your resume and the job description.');
         return;
       }
 
@@ -179,7 +200,7 @@ export default function App() {
       setPhase('done');
     } catch (err) {
       console.error(err);
-      alert('Error: ' + (err?.response?.data?.error || err.message));
+      setError('Error: ' + (err?.response?.data?.error || err?.message || 'Unknown error'));
       setPhase('idle');
     }
   };
@@ -269,6 +290,24 @@ export default function App() {
           </a>
         </div>
       </div>
+
+      {/* ===== ERROR BANNER ===== */}
+      {error && (
+        <div style={{
+          background: 'rgba(224,92,92,0.12)',
+          borderBottom: '1px solid rgba(224,92,92,0.3)',
+          color: '#e05c5c',
+          padding: '7px 16px',
+          fontSize: 12,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <span>{error}</span>
+          <button onClick={() => setError('')} style={{ background: 'none', border: 'none', color: '#e05c5c', cursor: 'pointer', fontSize: 16, padding: '0 4px' }}>✕</button>
+        </div>
+      )}
 
       {/* ===== WORKSPACE ===== */}
       <div className="workspace">

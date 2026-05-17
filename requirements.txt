@@ -1,15 +1,30 @@
-# Python Dependencies
-# Add your project dependencies here
-fastapi
-uvicorn
-pdfplumber
-numpy
-scikit-learn
-python-dotenv
-streamlit
-requests
-python-multipart
-pytesseract
-pdf2image
-pillow
-faiss-cpu
+# CVScope — Python Backend Dependencies
+# Install with:  pip install -r requirements.txt
+
+# ── Web server ──────────────────────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9       # Required for FastAPI file/form uploads
+
+# ── LLM & API ───────────────────────────────────────────────────────────────
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# ── PDF handling ─────────────────────────────────────────────────────────────
+pdfplumber>=0.10.3
+pypdf>=4.2.0                   # Fallback PDF parser when pdfplumber can't open a file
+# Optional OCR support (requires Poppler + Tesseract binaries installed separately):
+# pdf2image>=1.17.0
+# pytesseract>=0.3.10
+# pillow>=10.0.0
+
+# ── Embeddings & ML ──────────────────────────────────────────────────────────
+sentence-transformers>=2.7.0   # Used by EmbeddingGenerator (encodes text chunks)
+scikit-learn>=1.4.0            # Cosine similarity & utilities
+numpy>=1.26.0
+
+# ── Vector store ─────────────────────────────────────────────────────────────
+faiss-cpu>=1.8.0               # FAISS vector index for RAG
+
+# ── Data validation ──────────────────────────────────────────────────────────
+pydantic>=2.0.0                # Pydantic v2 (FastAPI models)
